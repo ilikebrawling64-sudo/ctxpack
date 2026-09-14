@@ -1,0 +1,14 @@
+# Example .ctxignore — copy to your repo root to fine-tune what ctxpack packs
+# (does not affect git; only ctxpack reads this)
+
+# Skip heavy or sensitive files you don't want to feed an LLM
+secrets/
+*.env
+*.pem
+*.key
+
+# Avoid cluttering context with generated/derived files
+*.log
+*.csv
+coverage/
+.profile/

@@ -1,0 +1,11 @@
+# ctxpack repo hygiene
+.venv/
+__pycache__/
+*.pyc
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+
+# example output is generated on demand
+examples/example-context.md
