@@ -31,12 +31,12 @@ a file tree, then each included file in a fenced block, most-relevant first.
 
 ## Future / monetization candidates
 - `--language` tokenizer-specific estimates (importable, optional heavy tokenizer).
-- **Pro** heuristics / per-language importance; `--include`/`--exclude` globs;
-  multiple-format output (XML like repomix, JSONL).
+- **Pro** heuristics / per-language importance (shipped so far: `--include`/`--exclude`
+  globs, priority relevance scoring); multiple-format output (XML like repomix, JSONL).
 - Commercial use license / sponsorship as the OSS grows.
 
 ## Testing
-- 7 unit tests (`tests/`) cover: token estimation, gitignore respect, built-in
-  ignores, budget truncation, priority ordering, ignore-pattern reporting,
-  markdown shape.
+- 10 unit tests (`tests/`) cover: token estimation, gitignore respect, built-in
+  ignores, budget truncation, priority ordering, include/exclude glob overrides,
+  include-ignored, ignore-pattern reporting, markdown shape.
 - CI: GitHub Actions on Python 3.11/3.12/3.13.

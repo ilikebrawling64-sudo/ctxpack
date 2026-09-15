@@ -29,13 +29,17 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="include files matched by ignore rules")
     p.add_argument("--include-binary", action="store_true",
                    help="attempt to include (some) binary-suffixed files as text")
+    p.add_argument("--include", action="append", metavar="GLOB", default=[],
+                   help="force-include files matching GLOB, overriding ignore rules (repeatable)")
+    p.add_argument("--exclude", action="append", metavar="GLOB", default=[],
+                   help="also ignore files matching GLOB, in addition to ignore rules (repeatable)")
     p.add_argument("--max-file-bytes", type=int, default=512 * 1024,
                    help="skip files larger than this many bytes (default: 524288)")
     p.add_argument("--no-tree", action="store_true",
                    help="omit the 'Files included' tree section")
     p.add_argument("--json", action="store_true",
                    help="print a machine-readable summary instead of the markdown")
-    p.add_argument("--version", action="version", version="ctxpack 0.1.0")
+    p.add_argument("--version", action="version", version="ctxpack 0.2.0")
     return p
 
 
@@ -54,6 +58,8 @@ def main(argv: list[str] | None = None) -> int:
         include_ignored=args.include_ignored,
         include_binary=args.include_binary,
         max_file_bytes=args.max_file_bytes,
+        include_globs=tuple(args.include),
+        exclude_globs=tuple(args.exclude),
     )
 
     result = packer.pack(priority=args.priority, max_tokens=args.budget)

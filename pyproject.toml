@@ -1,6 +1,6 @@
 [project]
 name = "ctxpack"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pack a codebase into a single token-efficient, structured context file for LLM-assisted development."
 readme = "README.md"
 requires-python = ">=3.11"

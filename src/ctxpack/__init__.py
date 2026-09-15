@@ -136,6 +136,8 @@ class Packer:
     include_binary: bool = False
     max_file_bytes: int = 512 * 1024  # skip enormous files
     tokenizer_chars_per_token: float = CHARS_PER_TOKEN
+    include_globs: tuple[str, ...] = ()  # force-include matching files (overrides ignores)
+    exclude_globs: tuple[str, ...] = ()  # extra ignores beyond defaults + .gitignore/.ctxignore
 
     def __post_init__(self) -> None:
         self.root = self.root.resolve()
@@ -145,7 +147,9 @@ class Packer:
 
     # ---- ignore handling ----
     def _load_ignore_spec(self) -> pathspec.PathSpec:
-        # Merge built-in defaults with the repo's own .gitignore/.ctxignore.
+        # Merge built-in defaults + repo ignore files, then apply user overrides.
+        # `--include <glob>` is appended as a `!<glob>` negation AFTER everything,
+        # so gitignore precedence lets "include" win over any ignore rule.
         lines: list[str] = list(DEFAULT_IGNORE_PATTERNS)
         for name in IGNORE_FILE_NAMES:
             f = self.root / name
@@ -158,15 +162,23 @@ class Packer:
                     line = raw.strip()
                     if line and not line.startswith("#"):
                         lines.append(line)
+        for g in self.exclude_globs:
+            lines.append(g)
+        for g in self.include_globs:
+            if not g.startswith("!"):
+                lines.append(f"!{g}")
         return pathspec.PathSpec.from_lines("gitignore", lines)
 
     def _ignored(self, rel: str, is_dir: bool = False) -> bool:
+        r = rel.replace("\\", "/")
+        # `--include-ignored` is a blanket bypass (everything is kept).
         if self.include_ignored:
             return False
         if self._spec is None:
             return False
-        # gitignore semantics: match both the path and, for dirs, as prefix.
-        r = rel.replace("\\", "/")
+        # `--include <glob>` is already baked into `self._spec` as a `!<glob>`
+        # negation after all ignore rules; pathspec gitignore semantics resolve
+        # precedence so a forced-include path matches as "not ignored".
         if self._spec.match_file(r):
             return True
         if is_dir and self._spec.match_file(r + "/"):

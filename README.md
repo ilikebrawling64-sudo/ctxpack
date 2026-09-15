@@ -7,9 +7,24 @@ When you feed a repo to an LLM, most of it is irrelevant and blows straight past
 ## Install
 
 ```bash
-pip install ctxpack        # from PyPI (coming soon)
+pip install ctxpack        # from PyPI
 # or: git clone + uv sync  # from source
 ```
+
+## See it work
+
+[`examples/example-context.md`](examples/example-context.md) is a real ctxpack output — 6 files packed at a 3,000-token budget, most-relevant code first. It starts like this:
+
+```markdown
+# Codebase context — `proj`
+
+> Packed 6 file(s), ~2,821 tokens, 11,293 chars. Budget 3,000 tokens — truncated.
+
+### Files included
+...
+```
+
+That's the whole promise in one screen: a budget that **always fits**, with the important code kept and the noise dropped.
 
 ## Usage
 
@@ -19,6 +34,12 @@ ctxpack . -b 50000 -p "refactor the auth module into a service"
 
 # Write to a file instead of stdout
 ctxpack ./my-project -o context.md
+
+# Force-include a specific file that ignore rules would drop
+ctxpack . --include 'deployment/prod.yaml'
+
+# Carve out a huge dir before a deadline
+ctxpack . --exclude 'tests/'
 
 # Machine-readable summary (files included/ignored)
 ctxpack ./my-project --json
@@ -32,6 +53,8 @@ ctxpack ./my-project --json
 | `-p, --priority` | A task phrase; files matching it are prioritized |
 | `-o, --output` | Write to file instead of stdout |
 | `--include-ignored` | Include files matched by ignore rules |
+| `--include GLOB` | Force-include files matching GLOB, overriding ignore rules (repeatable) |
+| `--exclude GLOB` | Also ignore files matching GLOB, in addition to ignore rules (repeatable) |
 | `--max-file-bytes` | Skip files larger than this (default 512 KB) |
 | `--json` | Machine-readable summary |
 | `--no-tree` | Omit the "Files included" tree |

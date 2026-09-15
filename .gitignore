@@ -6,6 +6,3 @@ dist/
 build/
 *.egg-info/
 .pytest_cache/
-
-# example output is generated on demand
-examples/example-context.md

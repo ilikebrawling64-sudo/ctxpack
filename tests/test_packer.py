@@ -74,6 +74,37 @@ def test_include_ignored(tmp_path):
     assert "secret.log" in rels
 
 
+def test_exclude_globs_drop_files(tmp_path):
+    root = _make_repo(tmp_path)
+    p = Packer(root=root, max_tokens=50_000, exclude_globs=("src/",))
+    result = p.pack()
+    rels = {e.rel for e in result.entries}
+    assert "src/main.py" not in rels
+    assert "src/utils.py" not in rels
+    assert "README.md" in rels  # untouched by the src/ exclude
+
+
+def test_include_glob_overrides_ignore(tmp_path):
+    root = _make_repo(tmp_path)
+    # secret.log matches *.log -> ignored by default; --include forces it back in.
+    p = Packer(root=root, max_tokens=50_000, include_globs=("secret.log",))
+    result = p.pack()
+    rels = {e.rel for e in result.entries}
+    assert "secret.log" in rels
+
+
+def test_include_glob_is_targeted_not_blanket(tmp_path):
+    root = _make_repo(tmp_path)
+    # --include secret.log must NOT pull in the binary files (across a different
+    # filter kind), proving it's an ignore-override, not --include-ignored.
+    p = Packer(root=root, max_tokens=50_000, include_globs=("secret.log",))
+    result = p.pack()
+    rels = {e.rel for e in result.entries}
+    assert "secret.log" in rels
+    assert "data.bin" not in rels
+    assert "thumb.png" not in rels
+
+
 def test_read_ignore_patterns(tmp_path):
     root = _make_repo(tmp_path)
     pats = read_ignore_patterns(root)
